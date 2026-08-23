@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nazar — Плейлист</title>
+    <title>Nazar — Музыка</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -25,10 +25,11 @@
             max-width: 450px;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
         }
-        h2 { margin: 0 0 5px 0; font-size: 22px; color: #f0f6fc; text-align: center; }
-        p.subtitle { margin: 0 0 20px 0; font-size: 14px; color: #8b949e; text-align: center; }
-        .track { background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; }
+        h2 { margin: 0 0 5px 0; font-size: 22px; color: #f0f6fc; }
+        p { margin: 0 0 20px 0; font-size: 14px; color: #8b949e; }
+        .track { background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 12px 16px; text-align: left; }
         .track-title { font-weight: bold; font-size: 15px; color: #58a6ff; margin-bottom: 8px; }
         audio { width: 100%; outline: none; height: 32px; }
     </style>
@@ -37,40 +38,13 @@
 
 <div class="card">
     <h2>Мои Треки</h2>
-    <p class="subtitle">Nazar</p>
-    <div id="playlist">Загрузка плейлиста...</div>
+    <p>Nazar</p>
+
+    <div class="track">
+        <div class="track-title">🎵 MIA BOYKA - Alex Vasaby Radio Remix</div>
+        <audio controls src="https://www.dropbox.com/scl/fi/n9bufqjplbh9s292f87pn/MIA-BOYKA-Alex-Vasaby-Radio-Remix.mp3?rlkey=2ej90ub7lcjpek877djpl5fos&st=w7ma8yy7&raw=1"></audio>
+    </div>
 </div>
-
-<script>
-    const BIN_ID = "6a8b5a83da38895dfe07e72a";
-
-    async function loadTracks() {
-        try {
-            const res = await fetch(https://api.jsonbin.io/v3/b/${BIN_ID}/latest);
-            const data = await res.json();
-            const playlist = document.getElementById("playlist");
-            playlist.innerHTML = "";
-
-            if (!data.record || data.record.length === 0) {
-                playlist.innerHTML = "<p style='text-align:center;'>Плейлист пуст</p>";
-                return;
-            }
-
-            data.record.forEach(track => {
-                playlist.innerHTML += 
-                    <div class="track">
-                        <div class="track-title">🎵 ${track.title}</div>
-                        <audio controls src="${track.url}"></audio>
-                    </div>
-                ;
-            });
-        } catch (e) {
-            document.getElementById("playlist").innerHTML = "Ошибка загрузки песен.";
-        }
-    }
-
-    loadTracks();
-</script>
 
 </body>
 </html>
