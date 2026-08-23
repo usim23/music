@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель Модератора</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { background: #0d0f12; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width: 450px; margin: 0 auto; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 20px; }
+        h2 { text-align: center; margin-top: 0; color: #f0f6fc; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #fff; font-size: 14px; }
+        button { width: 100%; background: #238636; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 15px; }
+        .btn-del { background: #da3633; padding: 6px 12px; width: auto; margin: 0; font-size: 12px; }
+        .item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px 14px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #21262d; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Управление сайтом</h2>
+
+    <h3>Добавить трек</h3>
+    <input type="text" id="title" placeholder="Название песни">
+    <input type="text" id="url" placeholder="Ссылка из Dropbox">
+    <button id="addBtn" onclick="addTrack()">Опубликовать на сайт</button>
+
+    <h3 style="margin-top:25px;">Список треков</h3>
+    <div id="list">Загрузка...</div>
+</div>
+
+<script>
+    const BIN_ID = "6a8b5a83da38895dfe07e72a";
+    const API_KEY = "$2a$10$ng3v8m1h40OPQpmXbcjDBuqHONtqWolTxacG3owOK/9ijCYg3pooW";
+    let tracks = [];
+
+    async function load() {
+        try {
+            const res = await fetch(https://api.jsonbin.io/v3/b/${BIN_ID}/latest, {
+                headers: { "X-Master-Key": API_KEY }
+            });
+            const data = await res.json();
+            tracks = Array.isArray(data.record) ? data.record : [];
+            render();
+        } catch(e) {
+            document.getElementById("list").innerText = "Ошибка загрузки данных.";
+        }
+    }
+
+    function render() {
+        const container = document.getElementById("list");
+        container.innerHTML = "";
+        if (tracks.length === 0) {
+            container.innerHTML = "<p style='color:#8b949e;'>Нет загруженных треков</p>";
+            return;
+        }
+        tracks.forEach((t, i) => {
+            container.innerHTML += 
+                <div class="item">
+                    <span>🎵 ${t.title}</span>
+                    <button class="btn-del" onclick="removeTrack(${i})">Удалить</button>
+                </div>
+            ;
+        });
+    }
+
+    async function save() {
+        await fetch(https://api.jsonbin.io/v3/b/${BIN_ID}, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": API_KEY
+            },
+            body: JSON.stringify(tracks)
+        });
+    }
+
+    async function addTrack() {
+        const titleInput = document.getElementById("title");
+        const urlInput = document.getElementById("url");
+        const btn = document.getElementById("addBtn");
+
+        if (!titleInput.value || !urlInput.value) return alert("Заполните оба поля!");
+        
+        btn.innerText = "Сохранение...";
+        btn.disabled = true;
+
+        let formattedUrl = urlInput.value.replace("dl=0", "raw=1");
+        tracks.push({ title: titleInput.value, url: formattedUrl });
+        
+        await save();
+        
+        titleInput.value = "";
+        urlInput.value = "";
+        btn.innerText = "Опубликовать на сайт";
+        btn.disabled = false;
+        
+        load();
+    }
+
+    async function removeTrack(index) {
+        if(!confirm("Удалить этот трек?")) return;
+        tracks.splice(index, 1);
+        await save();
+        load();
+    }
+
+    load();
+</script>
+
+</body>
+</html>
